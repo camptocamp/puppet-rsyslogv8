@@ -29,12 +29,17 @@ input(
 <%- if @_ssl_extra_options and @_ssl_extra_options != :undef%>
 <%= @_ssl_extra_options %>
 <%- end %>
-<%- if @remote_authorised_peers and @_remote_authorised_peers_real_option_name %>
- <%=  @_remote_authorised_peers_real_option_name %>=[
-<%-   @remote_authorised_peers.each_index do |i| %>
-   "<%= @remote_authorised_peers[i] %>" <%- if i < (@remote_authorised_peers.length - 1) %>,<% end %>
-<%-   end %>
+<%- if @_ssl %>
+<%-     if @_remote_auth_real_mode and @_remote_auth_real_mode != :undef %>
+ <%=      @_remote_auth_real_option_name %>="<%= @_remote_auth_real_mode %>"
+<%-     end %>
+<%-   if @remote_authorised_peers and @_remote_authorised_peers_real_option_name %>
+ <%=    @_remote_authorised_peers_real_option_name %>=[
+<%-     @remote_authorised_peers.each_index do |i| %>
+   "<%=   @remote_authorised_peers[i] %>" <%- if i < (@remote_authorised_peers.length - 1) %>,<% end %>
+<%-     end %>
  ]
+<%-   end %>
 <%- end %>
 <% scope.function_template(['rsyslogv8/config/partial/queue.erb']) %>
 )

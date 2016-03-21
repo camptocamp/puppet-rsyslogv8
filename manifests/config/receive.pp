@@ -11,6 +11,9 @@
 #  remote_authorised_peers: [LIST[FQDN|IP]] if remote_auth is "x509/name" the list of FQDN/IP that will match, can contain wildcards
 #  ruleset_name: [String] name of the (user-defined) ruleset to use for the input, if undef a ruleset will be created to write files locally
 #  override_ssl: [Boolean|undef] should this configuration override global ssl flag (undef do not override, boolean is overrided value) NOT avaiable for TCP/UDP connections
+#  override_ssl_ca: [String] override absolute path to the CA file, NOT avaiable for tcp
+#  override_ssl_cert: [String] override absolute path to the cert file, NOT avaiable for tcp
+#  override_ssl_key: [String] override absolute path to the key file, NOT avaiable for tcp
 #  port: [Integer|undef] port number to use for listening, undef for default
 define rsyslogv8::config::receive (
   $queue_size_limit        = undef,
@@ -25,6 +28,9 @@ define rsyslogv8::config::receive (
   $remote_authorised_peers = undef,
   $ruleset_name            = undef,
   $override_ssl            = undef,
+  $override_ssl_ca         = false,
+  $override_ssl_cert       = false,
+  $override_ssl_key        = false,
   $port                    = undef,
 ) {
   include ::rsyslogv8::config::receive_templates
@@ -70,6 +76,16 @@ define rsyslogv8::config::receive (
   if $override_ssl != undef and ! is_bool($override_ssl) {
     fail('parameter override_ssl must be a boolean or undef')
   }
+  if $override_ssl_ca != false and ! is_string($override_ssl_ca) and is_absolute_path($override_ssl_ca) {
+    fail('parameter override_ssl_ca must be an aboslute path or false')
+  }
+  if $override_ssl_key != false and ! is_string($override_ssl_key) and ! is_absolute_path($override_ssl_key){
+    fail('parameter override_ssl_key must be an absolute path to the key file or false')
+  }
+  if $override_ssl_cert != false and ! is_string($override_ssl_cert) and ! is_absolute_path($override_ssl_cert) {
+    fail('parameter override_ssl_cert must be an absolute path to the cert file or false')
+  }
+
 
   if $port != undef and ! is_integer($port) {
     fail('parameter port must be an integer or undef')
@@ -108,6 +124,24 @@ define rsyslogv8::config::receive (
     $_ssl = $rsyslogv8::ssl
   }
 
+  if $override_ssl_ca != false {
+    $_real_ca = $override_ssl_ca
+  } else {
+    $_real_ca = $::rsyslogv8::ssl_ca
+  }
+
+  if $override_ssl_key != false {
+    $_real_key = $override_ssl_key
+  } else {
+    $_real_key = $::rsyslogv8::ssl_key
+  }
+
+  if $override_ssl_cert != false {
+    $_real_cert = $override_ssl_cert
+  } else {
+    $_real_cert = $::rsyslogv8::ssl_cert
+  }
+
   case $remote_auth {
     'anon': {
       if $remote_authorised_peers {
@@ -116,7 +150,7 @@ define rsyslogv8::config::receive (
     }
     'x509/name': {
       if ! $_ssl {
-        fail('::rsyslogv8::ssl must be enabled to authenticate using x509/name')
+        fail('::rsyslogv8::ssl or override_ssl must be enabled to authenticate using x509/name')
       }
       if $remote_authorised_peers == undef {
         fail('must define remote_authorised_peers when authenticating hosts')
@@ -130,46 +164,68 @@ define rsyslogv8::config::receive (
   case $protocol {
     'tcp': {
       $_imodule = 'imtcp'
-      #$_remote_authorised_peers_real_option_name = 'PermittedPeer'
       $_remote_authorised_peers_real_option_name = undef
+      $_remote_auth_real_option_name = undef
+      $_remote_auth_real_mode = undef
       case $remote_auth {
         'anon': {
-          $_ssl_extra_options = undef
-        }
-        'x509/name': {
-          # $_ssl_extra_options = ' StreamDriver.AuthMode="x509/name"'
-          $_ssl_extra_options = undef
-          fail('listen-time authentication definition is not supported in tcp use relp, or change imtcp global options StreamDriver.AuthMode and PermittedPeer')
         }
         default: {
-          fail('do not know what to do with remote_auth value, please fix it')
+          fail("To setup Authentication of remote host set imtcp global parameters StreamDriver.AuthMode='${remote_auth}' and PermittedPeer='${remote_authorised_peers}'")
         }
+      }
+      $_ssl_extra_options = undef
+      if $override_ssl != undef or $override_ssl_cert or $override_ssl_key or $override_ssl_ca {
+        fail('cannot override ssl parameters for plain tcp connection consider using relp if you really want this feature')
       }
     }
 
     'relp': {
       $_imodule = 'imrelp'
       $_remote_authorised_peers_real_option_name = 'tls.permittedpeer'
+      $_remote_auth_real_option_name = 'tls.authMode'
+      if $_real_ca {
+        $__ssl_extra_options_ca = " tls.caCert=\"${_real_ca}\"\n"
+      } else {
+        $__ssl_extra_options_ca = undef
+      }
+      if $_real_key {
+        $__ssl_extra_options_key = " tls.myPrivKey=\"${_real_key}\"\n"
+      } else {
+        $__ssl_extra_options_key = undef
+      }
+      if $_real_cert {
+        $__ssl_extra_options_cert = " tls.myCert=\"${_real_cert}\"\n"
+      } else {
+        $__ssl_extra_options_cert = undef
+      }
       case $remote_auth {
         'anon': {
-          $_ssl_extra_options = undef
+          $_remote_auth_real_mode = undef
         }
         'x509/name': {
-          $_ssl_extra_options = ' tls.authMode="anon"'
+          $_remote_auth_real_mode = 'name'
         }
         default: {
           fail('do not know what to do with remote_auth value, please fix it')
         }
       }
+      if $_ssl {
+        $__ssl_extra_options_enable = " tls=\"on\"\n"
+      } else {
+        $__ssl_extra_options_enable = " tls=\"off\"\n"
+      }
+      $_ssl_extra_options = "${__ssl_extra_options_enable}${__ssl_extra_options_ca}${__ssl_extra_options_key}${__ssl_extra_options_cert}"
     }
 
     'udp': {
       $_imodule = 'imudp'
-      $_remote_authorised_peers_real_option_name = undef
+      $_remote_auth_real_option_name = undef
       if $remote_auth != 'anon' {
         fail('cannot authenticate hosts using udp, use tcp or relp instead')
       }
       $_ssl_extra_options = undef
+      $_remote_auth_real_mode = $remote_auth
     }
 
     default: {
