@@ -74,6 +74,7 @@ This will affect all instances of `rsyslogv8::config::ship` and `rsyslogv8::conf
 You can also set SSL/TLS options.
 
 To receive logs securely:
+- Using RELP:
 ``` puppet
 class { 'rsyslogv8':
   modules_extras => {
@@ -82,15 +83,30 @@ class { 'rsyslogv8':
 }
 rsyslogv8::config::receive { 'secure-logging':
   protocol                => 'relp',
-  override_ssl            => true,
-  override_ssl_ca         => $my_specific_ca_full_path,
-  override_ssl_cert       => $my_specific_cert_full_path,
-  override_ssl_key        => $my_specific_key_full_path,
   remote_auth             => 'x509/name',
   remote_authorised_peers => [ $host_fqdn_1, $host_fqdn_2, $host_fqdn_3, '*.secure-subdomain.example.com' ]
+  override_ssl            => true,
+  override_ssl_ca         => $my_ca_full_path,
+  override_ssl_cert       => $my_cert_full_path,
+  override_ssl_key        => $my_key_full_path,
+}
+```
+- Using TCP:
+``` puppet 
+class { 'rsyslogv8':
+  modules_extras => {
+    'imtcp' => {
+      'StreamDriver.AuthMode' => 'x509/name',
+      'PermittedPeer' => [ $host_fqdn_1, $host_fqdn_2, $host_fqdn_3, '*.secure-subdomain.example.com' ],
+    },
+  },
+}
+rsyslogv8::config::receive { 'secure-logging':
+  protocol                => 'tcp',
 }
 ```
 To ship logs securely:
+- Using RELP:
 ``` puppet
 class { 'rsyslogv8':
   modules_extras => {
@@ -98,12 +114,28 @@ class { 'rsyslogv8':
   },
 }
 rsyslogv8::config::ship { 'secure-log-server.example.com':
-  protocol                => 'relp',
-  override_ssl            => true,
-  override_ssl_ca         => $my_specific_ca_full_path,
-  override_ssl_cert       => $my_specific_cert_full_path,
-  override_ssl_key        => $my_specific_key_full_path,
-  remote_auth             => 'x509/name',
+  protocol          => 'relp',
+  remote_auth       => 'x509/name',
+  override_ssl      => true,
+  override_ssl_ca   => $my_ca_full_path,
+  override_ssl_cert => $my_cert_full_path,
+  override_ssl_key  => $my_key_full_path,
+}
+```
+- Using TCP:
+```puppet
+class { 'rsyslogv8':
+  modules_extras => {
+    'omfwd' => {},
+  },
+  ssl       => true,
+  ssl_ca    => $my_ca_full_path,
+  ssl_cert  => $my_cert_full_path,
+  ssl_key   => $my_key_full_path,
+}
+rsyslogv8::config::ship { 'secure-log-server.example.com':
+  protocol          => 'tcp',
+  remote_auth       => 'x509/name',
 }
 ```
 
@@ -330,7 +362,7 @@ Defaults to `${module_name}/config/local-${::osfamily}.erb` to have an OS-depend
 #### Class rsyslogv8::config::receive_templates
 Define the rsyslog filename templates when receiving logs from remote host.
 
-**Parameters within `rsyslogv8::config::local`:**
+**Parameters within `rsyslogv8::config::receive_templates`:**
 
 ##### `base_dir`
 The directory into which the logfiles will be written.
@@ -364,10 +396,6 @@ Define to send locally generated logs to a remote server.
 
 **Parameters within `rsyslogv8::config::ship`:**
 
-##### `remote_auth`
-Remote authentication method to use for the connection. This is only available when global `rsyslogv8::ssl` parameter is `true` or [override_ssl](#override_ssl) is true.
-Supported Values: "x509/name" (use CN or alt-names in the certificate), "anon" (no auth)
-
 ##### `queue_size_limit`
 Maximum number of events in the processing queue.
 
@@ -396,8 +424,15 @@ The host to which we need to connect.
 ##### `remote_port`
 The port to use for connection, undef means default value (depends on protocol).
 
+##### `remote_auth`
+Remote authentication method to use for the connection. This is only available when global `rsyslogv8::ssl` parameter is `true` or [override_ssl](#override_ssl) is true.
+Supported Values: "x509/name" (use CN or alt-names in the certificate), "anon" (no auth)
+
 ##### `remote_authorised_peers`
-If [remote_auth](#remote_auth) is "x509/name" the list of FQDN/IP that will match, can contain wildcards.
+If [remote_auth](#remote_auth) is "x509/name" the authorised FQDN/IP that will be matched on the Certificate provided by the server, can contain wildcards.
+
+This can be a single FQDN/IP as a string or a List of FQDN as an Array.
+For TCP, only a single FQDN/IP as a string is permitted.
 
 ##### `selector`
 Selector on the logs to send remotely.
@@ -414,13 +449,19 @@ Supported Values: `undef` do not override, boolean is overrided value
 Override absolute path to the CA file.
 Supported Values: `undef` do not override, an absolute path to a file on the server.
 
+Not Available for TCP.
+
 ##### `override_ssl_cert`
 Override absolute path to the cert file.
 Supported Values: `undef` do not override, an absolute path to a file on the server.
 
+Not Available for TCP.
+
 ##### `override_ssl_key`
 Override absolute path to the key file.
 Supported Values: `undef` do not override, an absolute path to a file on the server.
+
+Not Available for TCP.
 
 #### Defined type rsyslogv8::config::receive
 Define to receive logs from a remote server and manage them.
@@ -461,7 +502,7 @@ Remote authentication method to use for the connection. This is only available w
 Supported Values: "x509/name" (use CN or alt-names in the certificate), "anon" (no auth)
 
 ##### `remote_authorised_peers`
-If [remote_auth](#remote_auth) is "x509/name" the list of FQDN/IP that will match, can contain wildcards.
+If [remote_auth](#remote_auth) is "x509/name" the list of FQDN/IP that will be matched on the Certificate provided by the client, can contain wildcards.
 
 ##### `ruleset_name`
 Name of the (user-defined) ruleset to use for the input, if `undef` a ruleset will be created to write files locally.
