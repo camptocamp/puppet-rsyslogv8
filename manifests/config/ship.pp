@@ -9,7 +9,7 @@
 #  queue_save_on_shutdown: [Boolean] if queue_mode allows it, the queue is saved to disk when rsyslog is shutdown
 #  remote_host: [FQDN|IP] the host to which we need to connect
 #  remote_port: [Integer|IP] the port to use for connection, undef means default value (depends on protocol)
-#  remote_authorised_peers: [LIST[FQDN|IP]] if remote_auth is "x509/name" the list of FQDN/IP that will match, can contain wildcards
+#  remote_authorised_peers: [FQDN|IP|undef|List[FQDN|IP]] if remote_auth is "x509/name" this is a list of/single FQDN/IP that will match, can contain wildcards if null, remote_host is used.
 #  selector: [String] selector on the logs to send remotely
 #  protocol: [Enum] protocol used for sending, can be "tcp", "udp", "relp", ... if an output module is needed, it must be enabled separately
 #  override_ssl: [Boolean|undef] should this configuration override global ssl flag (undef do not override, boolean is overrided value) NOT avaiable for TCP connections
@@ -66,8 +66,8 @@ define rsyslogv8::config::ship (
   if ! is_string($queue_filename) {
     fail('parameter queue_filename must be a string')
   }
-  if $remote_authorised_peers != undef and ! is_array($remote_authorised_peers) {
-    fail('parameter remote_authorised_peers must be an array or undef')
+  if $remote_authorised_peers != undef and ! is_string($remote_authorised_peers) and ! is_array($remote_authorised_peers) {
+    fail('parameter remote_authorised_peers must be a FQDN/IP, an array of FQDN/IP or undef')
   }
   if ! is_string($selector) {
     fail('parameter selector must be a string')
@@ -78,17 +78,10 @@ define rsyslogv8::config::ship (
   if $override_ssl != undef and ! is_bool($override_ssl) {
     fail('parameter override_ssl must be a boolean or undef')
   }
+  $_remote_authorised_peers = pick($remote_authorised_peers, $remote_host)
   if $override_ssl_ca != false and ! is_string($override_ssl_ca) and is_absolute_path($override_ssl_ca) {
     fail('parameter override_ssl_ca must be an aboslute path or false')
   }
-  if $override_ssl_key != false and ! is_string($override_ssl_key) and ! is_absolute_path($override_ssl_key){
-    fail('parameter override_ssl_key must be an absolute path to the key file or false')
-  }
-  if $override_ssl_cert != false and ! is_string($override_ssl_cert) and ! is_absolute_path($override_ssl_cert) {
-    fail('parameter override_ssl_cert must be an absolute path to the cert file or false')
-  }
-
-  $_remote_authorised_peers = pick($remote_authorised_peers, [ $remote_host ])
 
   # Local variables definitions for template and semantic checking of input
   case $queue_mode {
@@ -156,33 +149,58 @@ define rsyslogv8::config::ship (
 
   case $protocol {
     'tcp': {
-      if $override_ssl {
+      if $override_ssl != undef or $override_ssl_cert or $override_ssl_key or $override_ssl_ca {
         fail('cannot override ssl parameters for plain tcp connection consider using relp if you really want this feature')
+      }
+      if $_ssl {
+        $__ssl_extra_options_enable = "StreamDriver=\"gtls\"\n"
+      } else {
+        $__ssl_extra_options_enable = "StreamDriver=\"ptcp\"\n"
       }
       $_omodule = 'omfwd'
       $_omodule_extra_opts = " Protocol=\"tcp\""
-      $_remote_auth_real_option_name = 'StreamDriver.AuthMode'
-      $_ssl_extra_options = undef
+      $_remote_auth_real_option_name = 'StreamDriverAuthMode'
+      $_remote_authorised_peers_real_option_name = 'StreamDriverPermittedPeers'
+      $_ssl_extra_options = $__ssl_extra_options_enable
+      $_remote_auth_real_mode = $remote_auth
+      if is_array($remote_authorised_peers) {
+        fail('in tcp, remote_authorised_peers must be a string for a single FQDN/IP')
+      }
     }
 
     'relp': {
       $_omodule = 'omrelp'
       $_omodule_extra_opts = undef
-      $_remote_auth_real_option_name = 'tls.permittedpeer'
-      if $_ssl {
-        $__ssl_enable = " tls=\"on\"\n"
-        $__ssl_ca     = " tls.caCert=\"${_real_ca}\"\n"
-        if $_real_cert != undef and $_real_key != undef {
-          $__ssl_key    = " tls.myPrivKey=\"${_real_key}\"\n"
-          $__ssl_cert   = " tls.myPrivKey=\"${_real_cert}\"\n"
-        } else {
-          $__ssl_key    = undef
-          $__ssl_cert   = undef
-        }
-        $_ssl_extra_options = "${__ssl_enable}${__ssl_ca}${_real_cert}${__ssl_cert}"
+      $_remote_auth_real_option_name = 'tls.authMode'
+      $_remote_authorised_peers_real_option_name = 'tls.permittedpeer'
+      $__ssl_extra_options_ca   = " tls.caCert=\"${_real_ca}\"\n"
+      if $_real_key {
+        $__ssl_extra_options_key  = " tls.myPrivKey=\"${_real_key}\"\n"
       } else {
-        $_ssl_extra_options = undef
+        $__ssl_extra_options_key = undef
       }
+      if $_real_cert {
+        $__ssl_extra_options_cert = " tls.myCert=\"${_real_cert}\"\n"
+      } else {
+        $__ssl_extra_options_cert = undef
+      }
+      case $remote_auth {
+        'anon': {
+          $_remote_auth_real_mode = undef
+        }
+        'x509/name': {
+          $_remote_auth_real_mode = 'name'
+        }
+        default: {
+          fail('do not know what to do with remote_auth value, please fix it')
+        }
+      }
+      if $_ssl {
+        $__ssl_extra_options_enable = "tls=\"on\"\n"
+      } else {
+        $__ssl_extra_options_enable = "tls=\"off\"\n"
+      }
+      $_ssl_extra_options = "${__ssl_extra_options_enable}${__ssl_extra_options_ca}${__ssl_extra_options_key}${__ssl_extra_options_cert}"
     }
 
     'udp': {
@@ -196,6 +214,7 @@ define rsyslogv8::config::ship (
         fail('cannot authenticate hosts in udp consider using relp or tcp for this feature')
       }
       $_remote_auth_real_option_name = undef
+      $_remote_auth_real_mode = $remote_auth
     }
     default: {
       fail("unsupported protocol '${protocol}'")
