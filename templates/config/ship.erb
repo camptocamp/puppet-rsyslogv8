@@ -4,23 +4,30 @@
 <%= @selector %> action(
  type="<%= @_omodule %>"
  target="<%= @remote_host %>"
-<%- if @remote_port %>
- port="<% @remote_port %>"
-<%- end %>
-<%- if @_ssl %>
- <%=  @_remote_auth_real_option_name %>=[
-<%-     @_remote_authorised_peers.each_index do |i| %>
-   "<%= @_remote_authorised_peers[i] %>" <%- if i < @_remote_authorised_peers.length -%> , <%- end %>
-<%-   end %>
- ]
+<%- if @remote_port and @remote_port != :undef %>
+ port="<%= @remote_port %>"
 <%- end %>
 <%- if @_omodule_extra_opts and @_omodule_extra_opts != :undef %>
-<%= @_omodule_extra_opts %>
+<%=   @_omodule_extra_opts %>
 <%  end -%>
 <%  if @_ssl -%>
+<%    if @_remote_auth_real_option_name and @_remote_auth_real_option_name != :undef and @_remote_authorised_peers_real_option_name and @_remote_authorised_peers_real_option_name != :undef -%>
+<%-     if @_remote_auth_real_mode and @_remote_auth_real_mode != :undef %>
+ <%=      @_remote_auth_real_option_name %>="<%= @_remote_auth_real_mode %>"
+<%-     end %>
+ <%=    @_remote_authorised_peers_real_option_name %>=<% if @_remote_authorised_peers.is_a?(Array) 
+ %>[
+<%-       @_remote_authorised_peers.each_index do |i| %>
+   "<%=     @_remote_authorised_peers[i] %>" <%- if i < (@_remote_authorised_peers.length - 1) %>,<% end %>
+<%-       end %>
+ ]
+<%      else
+%>"<%=    @_remote_authorised_peers %>"
+<%-     end %>
+<%-   end %>
 <%    if @_ssl_extra_options and @_ssl_extra_options != :undef %>
 <%=     @_ssl_extra_options %>
 <%-   end %>
 <%- end %>
-<% scope.function_template(['rsyslogv8/config/partial/queue.erb']) %>
+<%  scope.function_template(['rsyslogv8/config/partial/queue.erb']) %>
 )
