@@ -1,4 +1,5 @@
 require 'spec_helper_acceptance'
+require 'facter'
 
 describe 'rsyslogv8' do
 
@@ -160,101 +161,105 @@ describe 'rsyslogv8' do
     end
 
     context 'RELP' do
-      context 'w/o auth' do
-        it 'should apply without error' do
-          pp = <<-EOS
-            class { 'rsyslogv8':
-              modules_extras => { 'imrelp' => {} },
-              ssl            => true,
-              ssl_ca         => '/etc/cert.pem',
-              ssl_cert       => '/etc/cert.pem',
-              ssl_key        => '/etc/cert.key',
-            }
-            rsyslogv8::config::receive { 'localhost':
-              port                    => 514,
-              protocol                => 'relp',
-              queue_size_limit        => 100000,
-              queue_mode              => 'LinkedList-DA',
-            }
-          EOS
+      if Facter.value(:osfamily) == 'RedHat' and (Facter.value(:operatingsystemmajrelease) == '5' or Facter.value(:operatingsystemmajrelease) == '6')
+        skip("gnutls lib is too old on #{Facter.value(:osfamily)}#{Facter.value(:operatingsystemmajrelease)}")
+      else
+        context 'w/o auth' do
+          it 'should apply without error' do
+            pp = <<-EOS
+              class { 'rsyslogv8':
+                modules_extras => { 'imrelp' => {} },
+                ssl            => true,
+                ssl_ca         => '/etc/cert.pem',
+                ssl_cert       => '/etc/cert.pem',
+                ssl_key        => '/etc/cert.key',
+              }
+              rsyslogv8::config::receive { 'localhost':
+                port                    => 514,
+                protocol                => 'relp',
+                queue_size_limit        => 100000,
+                queue_mode              => 'LinkedList-DA',
+              }
+            EOS
 
-          apply_manifest(pp, :catch_failures => true)
-        end
-        it 'should idempotently run' do
-          pp = <<-EOS
-            class { 'rsyslogv8':
-              modules_extras => { 'imrelp' => {} },
-              ssl            => true,
-              ssl_ca         => '/etc/cert.pem',
-              ssl_cert       => '/etc/cert.pem',
-              ssl_key        => '/etc/cert.key',
-            }
-            rsyslogv8::config::receive { 'localhost':
-              port                    => 514,
-              protocol                => 'relp',
-              queue_size_limit        => 100000,
-              queue_mode              => 'LinkedList-DA',
-            }
-          EOS
+            apply_manifest(pp, :catch_failures => true)
+          end
+          it 'should idempotently run' do
+            pp = <<-EOS
+              class { 'rsyslogv8':
+                modules_extras => { 'imrelp' => {} },
+                ssl            => true,
+                ssl_ca         => '/etc/cert.pem',
+                ssl_cert       => '/etc/cert.pem',
+                ssl_key        => '/etc/cert.key',
+              }
+              rsyslogv8::config::receive { 'localhost':
+                port                    => 514,
+                protocol                => 'relp',
+                queue_size_limit        => 100000,
+                queue_mode              => 'LinkedList-DA',
+              }
+            EOS
 
-          apply_manifest(pp, :catch_changes => true)
+            apply_manifest(pp, :catch_changes => true)
+          end
+          describe command('rsyslogd -N1') do
+            its(:exit_status) { should eq 0 }
+          end
+          describe port(514) do
+            it { should be_listening }
+          end
         end
-        describe command('rsyslogd -N1') do
-          its(:exit_status) { should eq 0 }
-        end
-        describe port(514) do
-          it { should be_listening }
-        end
-      end
 
-      context 'with auth' do
-        it 'should apply without error' do
-          pp = <<-EOS
-            class { 'rsyslogv8':
-              modules_extras => { 'imrelp' => {} },
-            }
-            rsyslogv8::config::receive { 'localhost':
-              port                    => 514,
-              protocol                => 'relp',
-              queue_size_limit        => 100000,
-              queue_mode              => 'LinkedList-DA',
-              remote_authorised_peers => [ 'localhost', 'foo', 'bar' ],
-              remote_auth             => 'x509/name',
-              override_ssl            => true,
-              override_ssl_ca         => '/etc/cert.pem',
-              override_ssl_cert       => '/etc/cert.pem',
-              override_ssl_key        => '/etc/cert.key',
-            }
-          EOS
+        context 'with auth' do
+          it 'should apply without error' do
+            pp = <<-EOS
+              class { 'rsyslogv8':
+                modules_extras => { 'imrelp' => {} },
+              }
+              rsyslogv8::config::receive { 'localhost':
+                port                    => 514,
+                protocol                => 'relp',
+                queue_size_limit        => 100000,
+                queue_mode              => 'LinkedList-DA',
+                remote_authorised_peers => [ 'localhost', 'foo', 'bar' ],
+                remote_auth             => 'x509/name',
+                override_ssl            => true,
+                override_ssl_ca         => '/etc/cert.pem',
+                override_ssl_cert       => '/etc/cert.pem',
+                override_ssl_key        => '/etc/cert.key',
+              }
+            EOS
 
-          apply_manifest(pp, :catch_failures => true)
-        end
-        it 'should idempotently run' do
-          pp = <<-EOS
-            class { 'rsyslogv8':
-              modules_extras => { 'imrelp' => {} },
-            }
-            rsyslogv8::config::receive { 'localhost':
-              port                    => 514,
-              protocol                => 'relp',
-              queue_size_limit        => 100000,
-              queue_mode              => 'LinkedList-DA',
-              remote_authorised_peers => [ 'localhost', 'foo', 'bar' ],
-              remote_auth             => 'x509/name',
-              override_ssl            => true,
-              override_ssl_ca         => '/etc/cert.pem',
-              override_ssl_cert       => '/etc/cert.pem',
-              override_ssl_key        => '/etc/cert.key',
-            }
-          EOS
+            apply_manifest(pp, :catch_failures => true)
+          end
+          it 'should idempotently run' do
+            pp = <<-EOS
+              class { 'rsyslogv8':
+                modules_extras => { 'imrelp' => {} },
+              }
+              rsyslogv8::config::receive { 'localhost':
+                port                    => 514,
+                protocol                => 'relp',
+                queue_size_limit        => 100000,
+                queue_mode              => 'LinkedList-DA',
+                remote_authorised_peers => [ 'localhost', 'foo', 'bar' ],
+                remote_auth             => 'x509/name',
+                override_ssl            => true,
+                override_ssl_ca         => '/etc/cert.pem',
+                override_ssl_cert       => '/etc/cert.pem',
+                override_ssl_key        => '/etc/cert.key',
+              }
+            EOS
 
-          apply_manifest(pp, :catch_changes => true)
-        end
-        describe command('rsyslogd -N1') do
-          its(:exit_status) { should eq 0 }
-        end
-        describe port(514) do
-          it { should be_listening }
+            apply_manifest(pp, :catch_changes => true)
+          end
+          describe command('rsyslogd -N1') do
+            its(:exit_status) { should eq 0 }
+          end
+          describe port(514) do
+            it { should be_listening }
+          end
         end
       end
     end
