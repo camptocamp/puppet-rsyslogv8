@@ -12,7 +12,7 @@ class rsyslogv8::install {
     package { $rsyslogv8::relp_package_name:
       ensure  => $rsyslogv8::package_status,
       notify  => Class['rsyslogv8::service'],
-      require => Class['rsyslogv8::repository'],
+      require => [Class['rsyslogv8::repository'], Package[$rsyslogv8::rsyslog_package_name]],
     }
   }
 
@@ -20,7 +20,7 @@ class rsyslogv8::install {
     package { $rsyslogv8::gnutls_package_name:
       ensure  => $rsyslogv8::package_status,
       notify  => Class['rsyslogv8::service'],
-      require => Class['rsyslogv8::repository'],
+      require => [Class['rsyslogv8::repository'], Package[$rsyslogv8::rsyslog_package_name]],
     }
   }
 
@@ -28,7 +28,7 @@ class rsyslogv8::install {
     package { $rsyslogv8::kafka_package_name:
       ensure  => $rsyslogv8::package_status,
       notify  => Class['rsyslogv8::service'],
-      require => Class['rsyslogv8::repository'],
+      require => [Class['rsyslogv8::repository'], Package[$rsyslogv8::rsyslog_package_name]],
     }
   }
 
