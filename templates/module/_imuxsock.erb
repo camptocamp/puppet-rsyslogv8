@@ -12,5 +12,5 @@
 <%end -%>
 <%if @module_args.fetch('SysSock.Use', nil)!= nil and @module_args['SysSock.Use'] != :undef  -%>
 <%  raise Puppet::ParseError, "SysSock.Use must be a Boolean" unless scope.function_is_bool([ @module_args['SysSock.Use'] ]) -%>
- SysSock.Use="<%= @module_args['SysSock.Use'] or @module_args['SysSock.Use'] == 'true' ? 'on' : 'off' %>"
+ SysSock.Use="<%= ( @module_args['SysSock.Use'] or @module_args['SysSock.Use'] == 'true' ) ? 'on' : 'off' %>"
 <%end -%>
