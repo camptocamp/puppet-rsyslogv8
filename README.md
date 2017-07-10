@@ -351,10 +351,10 @@ Defaults to `syslog` for ubuntu, `root` on other OSes.
 The spool directory rsyslog uses for working data, and queues by default.
 Defaults to `/var/lib/rsyslog` on RedHat and `/var/spool/rsyslog` for other OSes.
 
-#####  `modules`
+Allows to override the configuration of the unuxsock module.
 
-Allows to override default OS modules and parameters. The default value of this parameters depends on the OS and version:
 Defaults to:
+
 - Centos/RHEL 7:
 ```
 {
@@ -366,7 +366,6 @@ Defaults to:
       'SysSock.RateLimit.Burst'    => 100,
     },
   },
-  'imjournal' => { 'comment' => 'provides access to the systemd journal' },
 }
 ```
 
@@ -380,9 +379,52 @@ Defaults to:
       'SysSock.RateLimit.Burst'    => 100,
     },
   },
+}
+```
+
+#####  `module_imklog`
+
+Allows to override the configuration of the imklog module.
+
+Defaults to:
+
+- Centos/RHEL 7:
+```
+{}
+```
+
+- For all others:
+```
+{
   'imklog'   => { 'comment' => 'provides kernel logging support (previously done by rklogd)' },
 }
 ```
+
+#####  `module_imjournal`
+
+Allows to override the configuration of the imjournal module:
+
+Defaults to:
+
+- Centos/RHEL 7:
+```
+{
+  'imjournal' => { 'comment' => 'provides access to the systemd journal' },
+}
+```
+
+- For all others:
+```
+{}
+```
+
+#####  `module_imuxsock`
+
+#####  `modules` (deprecated, use `module_*` instead)
+
+Allows to override default OS modules and parameters.
+
+Defaults to the merge of all the `module_*` parameters.
 
 #####  `perm_dir`
 Permissions to set on the log directory.
