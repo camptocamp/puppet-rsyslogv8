@@ -8,7 +8,9 @@ class rsyslogv8 (
   $run_user                       = $rsyslogv8::params::run_user,
   $run_group                      = $rsyslogv8::params::run_group,
   $spool_dir                      = $rsyslogv8::params::spool_dir,
-  $modules                        = $rsyslogv8::params::modules,
+  $module_imklog                  = $rsyslogv8::params::module_imklog,
+  $module_imjournal               = $rsyslogv8::params::module_imjournal,
+  $module_imuxsock                = $rsyslogv8::params::module_imuxsock,
   $perm_dir                       = $rsyslogv8::params::perm_dir,
   $perm_file                      = $rsyslogv8::params::perm_file,
   $umask                          = $rsyslogv8::params::umask,
@@ -28,6 +30,7 @@ class rsyslogv8 (
   $ssl_ca                         = undef,
   $ssl_cert                       = undef,
   $ssl_key                        = undef,
+  $modules                        = undef,
   $modules_extras                 = undef,
 ) inherits rsyslogv8::params {
   if ! is_string($rsyslog_package_name) and $rsyslog_package_name != false {
@@ -54,11 +57,23 @@ class rsyslogv8 (
   if ! is_string($gnutls_package_name) and $gnutls_package_name != false {
     fail('parameter gnutls_package_name must be a string or false')
   }
-  if ! is_hash($modules) {
-    fail('parameter modules must be a hash')
+  if $modules != undef and ! is_hash($modules) {
+    fail('parameter modules must be a hash or undef')
+  }
+  if ! is_hash($module_imklog) {
+    fail('parameter module_imklog must be a hash')
+  }
+  if ! is_hash($module_imjournal) {
+    fail('parameter module_imjournal must be a hash')
+  }
+  if ! is_hash($module_imuxsock) {
+    fail('parameter module_imuxsock must be a hash')
+  }
+  if $modules == undef {
+    $real_modules = merge($module_imklog, $module_imjournal, $module_imuxsock)
   }
   if $modules_extras != undef and ! is_hash($modules_extras) {
-    fail('parameter modules_extras must be an array or undef')
+    fail('parameter modules_extras must be a hash or undef')
   }
   if ! is_bool($purge_rsyslog_d) {
     fail('parameter purge_rsyslog_d must be a boolean')

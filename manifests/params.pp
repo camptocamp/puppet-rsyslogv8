@@ -18,7 +18,9 @@ class rsyslogv8::params {
       $_family_run_user             = undef
       $_family_run_group            = undef
       $_family_spool_dir            = undef
-      $_family_modules              = undef
+      $_family_module_imklog        = undef
+      $_family_module_imjournal     = undef
+      $_family_module_imuxsock      = undef
       $_family_perm_dir             = '0755'
       $_family_perm_file            = '0640'
       $_family_umask                = undef
@@ -44,7 +46,9 @@ class rsyslogv8::params {
           $_os_family_run_user             = undef
           $_os_family_run_group            = undef
           $_os_family_spool_dir            = undef
-          $_os_family_modules              = undef
+          $_os_family_module_imklog        = undef
+          $_os_family_module_imjournal     = undef
+          $_os_family_module_imuxsock      = undef
           $_os_family_perm_dir             = undef
           $_os_family_perm_file            = undef
           $_os_family_umask                = undef
@@ -63,7 +67,9 @@ class rsyslogv8::params {
               $_version_os_family_run_user             = undef
               $_version_os_family_run_group            = undef
               $_version_os_family_spool_dir            = undef
-              $_version_os_family_modules              = undef
+              $_version_os_family_module_imklog        = undef
+              $_version_os_family_module_imjournal     = undef
+              $_version_os_family_module_imuxsock      = undef
               $_version_os_family_perm_file            = undef
               $_version_os_family_perm_dir             = undef
               $_version_os_family_umask                = undef
@@ -79,7 +85,9 @@ class rsyslogv8::params {
               $_version_os_family_run_user             = undef
               $_version_os_family_run_group            = undef
               $_version_os_family_spool_dir            = undef
-              $_version_os_family_modules              = undef
+              $_version_os_family_module_imklog        = undef
+              $_version_os_family_module_imjournal     = undef
+              $_version_os_family_module_imuxsock      = undef
               $_version_os_family_perm_file            = undef
               $_version_os_family_perm_dir             = undef
               $_version_os_family_umask                = undef
@@ -101,7 +109,9 @@ class rsyslogv8::params {
               $_version_os_family_run_user             = undef
               $_version_os_family_run_group            = undef
               $_version_os_family_spool_dir            = undef
-              $_version_os_family_modules              = undef
+              $_version_os_family_module_imklog        = undef
+              $_version_os_family_module_imjournal     = undef
+              $_version_os_family_module_imuxsock      = undef
               $_version_os_family_perm_file            = undef
               $_version_os_family_perm_dir             = undef
               $_version_os_family_umask                = undef
@@ -144,7 +154,9 @@ class rsyslogv8::params {
           $_os_family_run_user             = 'syslog'
           $_os_family_run_group            = 'syslog'
           $_os_family_spool_dir            = undef
-          $_os_family_modules              = undef
+          $_os_family_module_imklog        = undef
+          $_os_family_module_imjournal     = undef
+          $_os_family_module_imuxsock      = undef
           $_os_family_perm_dir             = undef
           $_os_family_perm_file            = undef
           $_os_family_umask                = undef
@@ -163,7 +175,9 @@ class rsyslogv8::params {
               $_version_os_family_run_user             = undef
               $_version_os_family_run_group            = undef
               $_version_os_family_spool_dir            = undef
-              $_version_os_family_modules              = undef
+              $_version_os_family_module_imklog        = undef
+              $_version_os_family_module_imjournal     = undef
+              $_version_os_family_module_imuxsock      = undef
               $_version_os_family_perm_file            = undef
               $_version_os_family_perm_dir             = undef
               $_version_os_family_umask                = undef
@@ -179,7 +193,9 @@ class rsyslogv8::params {
               $_version_os_family_run_user             = undef
               $_version_os_family_run_group            = undef
               $_version_os_family_spool_dir            = undef
-              $_version_os_family_modules              = undef
+              $_version_os_family_module_imklog        = undef
+              $_version_os_family_module_imjournal     = undef
+              $_version_os_family_module_imuxsock      = undef
               $_version_os_family_perm_file            = undef
               $_version_os_family_perm_dir             = undef
               $_version_os_family_umask                = undef
@@ -195,7 +211,9 @@ class rsyslogv8::params {
               $_version_os_family_run_user             = undef
               $_version_os_family_run_group            = undef
               $_version_os_family_spool_dir            = undef
-              $_version_os_family_modules              = undef
+              $_version_os_family_module_imklog        = undef
+              $_version_os_family_module_imjournal     = undef
+              $_version_os_family_module_imuxsock      = undef
               $_version_os_family_perm_file            = undef
               $_version_os_family_perm_dir             = undef
               $_version_os_family_umask                = undef
@@ -221,7 +239,9 @@ class rsyslogv8::params {
       $_family_run_user             = undef
       $_family_run_group            = undef
       $_family_spool_dir            = '/var/lib/rsyslog'
-      $_family_modules              = undef
+      $_family_module_imklog        = undef
+      $_family_module_imjournal     = undef
+      $_family_module_imuxsock      = undef
       $_family_perm_dir             = undef
       $_family_perm_file            = undef
       $_family_umask                = '0000'
@@ -248,7 +268,9 @@ class rsyslogv8::params {
           $_os_family_run_user             = undef
           $_os_family_run_group            = undef
           $_os_family_spool_dir            = undef
-          $_os_family_modules              = undef
+          $_os_family_module_imklog        = undef
+          $_os_family_module_imjournal     = undef
+          $_os_family_module_imuxsock      = undef
           $_os_family_perm_dir             = undef
           $_os_family_perm_file            = undef
           $_os_family_umask                = undef
@@ -267,7 +289,9 @@ class rsyslogv8::params {
               $_version_os_family_run_user             = undef
               $_version_os_family_run_group            = undef
               $_version_os_family_spool_dir            = undef
-              $_version_os_family_modules              = undef
+              $_version_os_family_module_imklog        = undef
+              $_version_os_family_module_imjournal     = undef
+              $_version_os_family_module_imuxsock      = undef
               $_version_os_family_perm_file            = undef
               $_version_os_family_perm_dir             = undef
               $_version_os_family_umask                = undef
@@ -283,7 +307,9 @@ class rsyslogv8::params {
               $_version_os_family_run_user             = undef
               $_version_os_family_run_group            = undef
               $_version_os_family_spool_dir            = undef
-              $_version_os_family_modules              = undef
+              $_version_os_family_module_imklog        = undef
+              $_version_os_family_module_imjournal     = undef
+              $_version_os_family_module_imuxsock      = undef
               $_version_os_family_perm_file            = undef
               $_version_os_family_perm_dir             = undef
               $_version_os_family_umask                = undef
@@ -299,7 +325,8 @@ class rsyslogv8::params {
               $_version_os_family_run_user             = undef
               $_version_os_family_run_group            = undef
               $_version_os_family_spool_dir            = undef
-              $_version_os_family_modules              = {
+              $_version_os_family_module_imklog        = {}
+              $_version_os_family_module_imuxsock      = {
                                         'imuxsock'  => {
                                           'comment'   => 'provides support for local system logging',
                                           'arguments' => {
@@ -307,6 +334,8 @@ class rsyslogv8::params {
                                             'SysSock.RateLimit.Interval' => 0,
                                           },
                                         },
+              }
+              $_version_os_family_module_imjournal     = {
                                         'imjournal' => {
                                           'comment'   => 'provides access to the systemd journal',
                                           'arguments' => {
@@ -389,10 +418,11 @@ class rsyslogv8::params {
                                       $::rsyslogv8::params::_family_spool_dir,
                                       '/var/spool/rsyslog'
                                     )
-  $modules                        = pick(
-                                      $::rsyslogv8::params::_version_os_family_modules,
-                                      $::rsyslogv8::params::_os_family_modules,
-                                      $::rsyslogv8::params::_family_modules,
+
+  $module_imuxsock                = pick(
+                                      $::rsyslogv8::params::_version_os_family_module_imuxsock,
+                                      $::rsyslogv8::params::_os_family_module_imuxsock,
+                                      $::rsyslogv8::params::_family_module_imuxsock,
                                       {
                                         'imuxsock' => {
                                           'comment'   => 'provides support for local system logging',
@@ -401,9 +431,25 @@ class rsyslogv8::params {
                                             'SysSock.Name'               => '/dev/log',
                                           },
                                         },
-                                        'imklog'   => { 'comment' => 'provides kernel logging support (previously done by rklogd)' },
+                                      },
+                                    )
+
+  $module_imklog                  = pick(
+                                      $::rsyslogv8::params::_version_os_family_module_imklog,
+                                      $::rsyslogv8::params::_os_family_module_imklog,
+                                      $::rsyslogv8::params::_family_module_imklog,
+                                      {
+                                        'imklog' => { 'comment' => 'provides kernel logging support (previously done by rklogd)' },
                                       }
                                     )
+
+  $module_imjournal               = pick(
+                                      $::rsyslogv8::params::_version_os_family_module_imjournal,
+                                      $::rsyslogv8::params::_os_family_module_imjournal,
+                                      $::rsyslogv8::params::_family_module_imjournal,
+                                      {}
+                                    )
+
   $perm_dir                       = pick(
                                       $::rsyslogv8::params::_version_os_family_perm_dir,
                                       $::rsyslogv8::params::_os_family_perm_dir,

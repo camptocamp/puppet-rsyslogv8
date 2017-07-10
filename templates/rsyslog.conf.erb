@@ -35,7 +35,7 @@ $Umask <%= scope.lookupvar('rsyslogv8::umask') %>
 #### MODULES ####
 #################
 
-<% scope.lookupvar('rsyslogv8::modules').each_pair do |name, data| -%>
+<% scope.lookupvar('rsyslogv8::real_modules').each_pair do |name, data| -%>
 <%= scope.function_sub_template_call([ 'rsyslogv8/module.erb', { 'name' => name, 'rsysmodule' => data } ]) -%>
 <% end -%>
 
