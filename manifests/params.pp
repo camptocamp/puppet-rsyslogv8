@@ -244,7 +244,7 @@ class rsyslogv8::params {
           $_os_family_relp_package_name    = undef
           $_os_family_rsyslog_package_name = undef
           $_os_family_gnutls_package_name  = undef
-          $_os_family_kafka_package_name   = undef
+          $_os_family_kafka_package_name   = false
           $_os_family_run_user             = undef
           $_os_family_run_group            = undef
           $_os_family_spool_dir            = undef
