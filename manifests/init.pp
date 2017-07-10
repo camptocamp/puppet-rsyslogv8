@@ -71,6 +71,8 @@ class rsyslogv8 (
   }
   if $modules == undef {
     $real_modules = merge($module_imklog, $module_imjournal, $module_imuxsock)
+  } else {
+    $real_modules = $modules
   }
   if $modules_extras != undef and ! is_hash($modules_extras) {
     fail('parameter modules_extras must be a hash or undef')
