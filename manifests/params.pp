@@ -244,7 +244,7 @@ class rsyslogv8::params {
           $_os_family_relp_package_name    = undef
           $_os_family_rsyslog_package_name = undef
           $_os_family_gnutls_package_name  = undef
-          $_os_family_kafka_package_name   = undef
+          $_os_family_kafka_package_name   = false
           $_os_family_run_user             = undef
           $_os_family_run_group            = undef
           $_os_family_spool_dir            = undef
@@ -299,40 +299,21 @@ class rsyslogv8::params {
               $_version_os_family_run_user             = undef
               $_version_os_family_run_group            = undef
               $_version_os_family_spool_dir            = undef
-              if (versioncmp($::operatingsystemrelease, '7.2') > 0) {
-                $_version_os_family_modules              = {
-                                          'imuxsock'  => {
-                                            'comment'   => 'provides support for local system logging',
-                                            'arguments' => {
-                                              'SysSock.Use'                => true,
-                                              'SysSock.RateLimit.Interval' => 0,
-                                            },
+              $_version_os_family_modules              = {
+                                        'imuxsock'  => {
+                                          'comment'   => 'provides support for local system logging',
+                                          'arguments' => {
+                                            'SysSock.Use'                => false,
+                                            'SysSock.RateLimit.Interval' => 0,
                                           },
-                                          'imjournal' => {
-                                            'comment'   => 'provides access to the systemd journal',
-                                            'arguments' => {
-                                              'StateFile'            => '/var/lib/rsyslog/imjournal.state',
-                                              'PersistStateInterval' => '100',
-                                            },
+                                        },
+                                        'imjournal' => {
+                                          'comment'   => 'provides access to the systemd journal',
+                                          'arguments' => {
+                                            'StateFile'            => '/var/lib/rsyslog/imjournal.state',
+                                            'PersistStateInterval' => '100',
                                           },
-                }
-              } else {
-                $_version_os_family_modules              = {
-                                          'imuxsock'  => {
-                                            'comment'   => 'provides support for local system logging',
-                                            'arguments' => {
-                                              'SysSock.Use'                => false,
-                                              'SysSock.RateLimit.Interval' => 0,
-                                            },
-                                          },
-                                          'imjournal' => {
-                                            'comment'   => 'provides access to the systemd journal',
-                                            'arguments' => {
-                                              'StateFile'            => '/var/lib/rsyslog/imjournal.state',
-                                              'PersistStateInterval' => '100',
-                                            },
-                                          },
-                }
+                                        },
               }
               $_version_os_family_perm_file            = undef
               $_version_os_family_perm_dir             = undef
