@@ -1,4 +1,8 @@
   port="<%= @action.fetch("port", 2514) %>"
+<%if @action.fetch('template', nil) and @action['template'] != :undef -%>
+<%  raise Puppet::ParseError, "template parameter must be a String in action #{@action.fetch('name', @title)}" unless @action['template'].is_a?(String) -%>
+  template="<%= @action['template'] %>"
+<%end -%>
 <%raise Puppet::ParseError, "target is not set for action #{@action.fetch('target', @title)}" unless @action.fetch('target', nil) -%>
   target="<%= @action['target'] %>"
 <%
