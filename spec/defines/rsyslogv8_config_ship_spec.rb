@@ -70,6 +70,28 @@ describe 'rsyslogv8::config::ship' do
             end
           end
 
+          context 'with RELP and template' do
+            let (:params) { {
+              :protocol          => 'relp',
+              :template          => 'FooBarTmpl',
+              :override_ssl      => true,
+              :override_ssl_ca   => '/tmp/dummpy.pem',
+              :override_ssl_cert => '/tmp/dummpy.pem',
+              :override_ssl_key  => '/tmp/dummpy.pem',
+            } }
+            if facts[:osfamily] == 'RedHat' and ( facts[:operatingsystemmajrelease] == '5' or facts[:operatingsystemmajrelease] == '6' )
+              it 'should fail' do
+                expect { should contain_rsyslogv8__config__ship('localhost')
+                }.to raise_error(Puppet::Error, /TLS with relp does NOT work/)
+              end
+            else
+              it {
+                should contain_rsyslogv8__config__ship('localhost')
+                should contain_file('/etc/rsyslog.d/90-ship-localhost.conf').with_content(/template="FooBarTmpl"/)
+              }
+            end
+          end
+
           context 'with UDP' do
             let (:params) { {
               :protocol          => 'udp',

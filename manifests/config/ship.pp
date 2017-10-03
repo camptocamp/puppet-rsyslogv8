@@ -37,6 +37,7 @@ define rsyslogv8::config::ship (
   $override_ssl_cert       = false,
   $override_ssl_key        = false,
   $action_resume_retry_cnt = undef,
+  $template                = undef,
 ) {
   # Input checking
   if ! is_string($remote_host) and ! ( is_domain_name($remote_host) or is_ip_address($remote_host) ){
