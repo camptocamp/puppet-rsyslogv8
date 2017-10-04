@@ -1,7 +1,7 @@
 define rsyslogv8::config::imfile(
   $files         = [ $title ],
   $ruleset_name  = 'RSYSLOG_DefaultRuleset',
-  $rsyslog_tag   = $title,
+  $rsyslog_tag   = "${title}:",
   $facility      = 'local0',
   $severity      = 'notice',
   $readmode      = 'line',
