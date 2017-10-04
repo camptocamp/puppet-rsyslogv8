@@ -5,7 +5,7 @@
   File="<%= @input['name'] %>"
 <%raise Puppet::ParseError, "Tag parameter is mandatory in input #{@input['name']}" unless ( @input.fetch('Tag', nil) != nil and @input['Tag'] != :undef ) -%>
 <%raise Puppet::ParseError, "Tag parameter must be a string in input #{@input['name']}" unless @input['Tag'].is_a? String -%>
-  Tag="<%= @input['Tag'] %>"
+  Tag="<%= @input['Tag'] %>:"
 <%if @input.fetch('Facility', nil) != nil and @input['Facility'] != :undef -%>
 <%  raise Puppet::ParseError, "Facility parameter must be a String or an Integer in input #{@input['name']}" unless ( @input['Facility'].is_a? String or @input['Facility'].is_a? Integer ) -%>
 <%  raise Puppet::ParseError, "unknown Facility '#{@input['Facility']}' in input #{@input['name']}" unless scope.function_is_facility([ @input['Facility'] ]) -%>
