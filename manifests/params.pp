@@ -132,6 +132,24 @@ class rsyslogv8::params {
                 release  => 'jessie-backports',
               }
             }
+            '9': {
+              $_version_os_family_manage_repo          = false
+              $_version_os_family_repo_data            = undef
+              $_version_os_family_relp_package_name    = undef
+              $_version_os_family_rsyslog_package_name = undef
+              $_version_os_family_gnutls_package_name  = undef
+              $_version_os_family_kafka_package_name   = undef
+              $_version_os_family_run_user             = undef
+              $_version_os_family_run_group            = undef
+              $_version_os_family_spool_dir            = undef
+              $_version_os_family_module_imklog        = undef
+              $_version_os_family_module_imjournal     = undef
+              $_version_os_family_module_imuxsock      = undef
+              $_version_os_family_perm_file            = undef
+              $_version_os_family_perm_dir             = undef
+              $_version_os_family_umask                = undef
+              $_version_os_family_pin_packages         = undef
+            }
             default: {
               fail("Unsupported operatingsystemmajrelease (${::operatingsystem}) ${::operatingsystemmajrelease}")
             }
