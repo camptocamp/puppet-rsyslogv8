@@ -75,3 +75,14 @@ matrix:
     script: sudo service docker restart ; sleep 10 && bundle exec rspec spec/acceptance/*_spec.rb
 notifications:
   email: false
+deploy:
+  provider: puppetforge
+  user: camptocamp
+  password:
+    secure: "A4fUoQi2zuR/aYHFDC3poCmroVBQ5MtXKjgYvYrFBRGKytgaTYEBJbNUtvC6n9bA8cMKB7IT/prhlGVPqvviaGNWux02EleUauWlZZvFI8TvwNC3F5kD0LruBtIktKv3+EZ3r5egFSoGlDlvx2IoO7B7RYD0mHXStPjoWowp9q5IhkpCh+VBCJSFgz7AbEyad+DNuz732wDHHiEhdqfS0kvQxRdkPzgVvParYHyxod5fTzmwlo+XYSc2SRsDea2P/284BQdH7pid0RICbgEMk8zuwYxLXhp+6QYkJgX0rU4i8pGq74arj/lh8DhS6YRI/Hkk7onh4kMkHciEyplBME4orzG1xLvMSVlzia5cds0OBAijOfulQo90uh+EOB3OVVyLuAuwudBQCHPpeImcB37ysgD0xp7E2LvGtmJSiI2Jso6MlNkgqBIILKiu3tloPnAJVK/W1xYMptd2g0viUj0up1YavvbZihG5g0akfTVO2a3Yz5UfI6zeeYfrrIEWb6xljKAzjJM2f9kw7lQFe2bEF16sM5DiyXnMnvuSwFOEgVHbcwpKDAyC8OPnfGmmGB6jKMPEjSp+j7tgWPcCIfbpNKGXIKeweK9Pukym9b9CYZ1f8p0RlvXJkxzlrPhC+mxM6CcUeXUlvBpf96KXRu6QL3CfxY7pnwHZPG1Kug8="
+  on:
+    tags: true
+    # all_branches is required to use tags
+    all_branches: true
+    # Only publish if our main Ruby target builds
+    rvm: 2.1.9
