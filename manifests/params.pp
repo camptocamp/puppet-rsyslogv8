@@ -132,7 +132,7 @@ class rsyslogv8::params {
                 release  => 'jessie-backports',
               }
             }
-            '9': {
+            '9', '10': {
               $_version_os_family_manage_repo          = false
               $_version_os_family_repo_data            = undef
               $_version_os_family_relp_package_name    = undef
