@@ -1,6 +1,6 @@
 {
   "name": "camptocamp-rsyslogv8",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "author": "Camptocamp",
   "summary": "Puppet Module to install and configure Rsyslog-v8",
   "license": "Camptocamp SA",
